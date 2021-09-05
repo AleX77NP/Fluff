@@ -3,11 +3,13 @@ package main
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/hex"
 	"os"
 	"strings"
 )
 
 // Save your secret in env variable
+
 var secret = os.Getenv("WEBHOOK_SECRET")
 
 func SignBody(secret, body []byte) []byte {
@@ -25,6 +27,7 @@ func Verify(secret []byte, signature string, body []byte) bool {
 	}
 
 	actual := make([]byte, 20)
+	hex.Decode(actual, []byte(signature[5:]))
 
 	return hmac.Equal(SignBody(secret, body), actual)
 }

@@ -12,6 +12,8 @@ type Hook struct {
 	Payload   []byte
 }
 
+// parse hook and check fields
+
 func ParseHook(secret []byte, request *http.Request) (*Hook, error) {
 	hook := Hook{}
 
