@@ -19,10 +19,12 @@ func NewCommander() Commander {
 
 func(c Commander) CloneRepository(repoUrl string, ref string) error {
 	glog.Infof("Cloning repository: %s in directory: %s", repoUrl, c.dir)
-	err := exec.Command("git", "clone", repoUrl, c.dir, "--depth", "1").Run()
+
+	githubRepoUrl := fmt.Sprintf("%s/%s.git", githubUrl, repoUrl)
+	err := exec.Command("git", "clone", githubRepoUrl, c.dir, "--depth", "1").Run()
 
 	if err != nil {
-		return fmt.Errorf("Failed to clone repository %s into %s: %v", repoUrl, c.dir, err)
+		return fmt.Errorf("Failed to clone repository %s into %s: %v", githubRepoUrl, c.dir, err)
 	}
 
 	return nil
