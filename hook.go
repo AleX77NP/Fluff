@@ -1,8 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/golang/glog"
+	"github.com/google/go-github/github"
 )
 
 type Hook struct {
@@ -12,9 +16,13 @@ type Hook struct {
 	Payload   []byte
 }
 
+type HookEvent struct {
+
+}
+
 // parse hook and check fields
 
-func ParseHook(secret []byte, request *http.Request) (*Hook, error) {
+func ParseHook(secret []byte, request *http.Request, w http.ResponseWriter, eh EventHandler) (*Hook, error) {
 	hook := Hook{}
 
 	if hook.Signature = request.Header.Get("x-hub-signature"); len(hook.Signature) == 0 {
@@ -36,6 +44,21 @@ func ParseHook(secret []byte, request *http.Request) (*Hook, error) {
 	if !Verify(secret, hook.Signature, body) {
 		return nil, InvalidSignatureError
 	}
+
+	event, err := github.ParseWebHook(github.WebHookType(request), body)
+	if err != nil {
+		fmt.Println("Could not parse web hook", err)
+		glog.Warning("Could not parse web hook %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return nil, GithubParseError
+	}
+
+	go func ()  {
+		switch event := event.(type) {
+		case *github.PushEvent:
+			err = eh.HandlePushEvent(event)
+		}
+	}() // background doing
 
 	return &hook, nil
 }

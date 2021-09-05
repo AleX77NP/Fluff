@@ -7,4 +7,5 @@ var (
 	NoEventError = errors.New("No event!")
 	NoEventIdError = errors.New("No event id!")
 	InvalidSignatureError = errors.New("Invalid signature error!")
+	GithubParseError = errors.New("Error parsing hook using github!")
 )
