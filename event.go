@@ -34,9 +34,6 @@ func(e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	commander := NewCommander()
 
-	// Clean prevoius 
-	commander.Clean()
-
 	commander.CloneRepository(fName, event.GetRef())
 
 	if MasterRef != event.GetRef() {
@@ -44,7 +41,7 @@ func(e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 		return nil
 	}
 
-	commander.Pull(event.GetRef())
+	commander.Pull()
 
 
 	return nil
