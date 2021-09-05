@@ -6,6 +6,7 @@ import (
 	"io"
 	"fmt"
 	"github.com/golang/glog"
+	"flag"
 )
 
 var (
@@ -14,6 +15,9 @@ var (
 )
 
 func main() {
+
+	flag.Set("logtostderr", "true")
+	flag.Parse()
 
 	client := NewGithubClient(token)
 
