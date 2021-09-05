@@ -6,7 +6,6 @@ import (
 	"net/http"
 )
 
-
 func HookHandler(w http.ResponseWriter, r *http.Request) {
 	hook, err := ParseHook([]byte(secret), r)
 
