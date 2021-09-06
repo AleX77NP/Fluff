@@ -12,7 +12,6 @@ import (
 
 // Save your secret in env variable
 
-// var secret = os.Getenv("WEBHOOK_SECRET")
 var secret = os.Getenv("WEBHOOK_SECRET")
 
 func SignBody(secret, body []byte) []byte {
