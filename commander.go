@@ -18,6 +18,7 @@ func NewCommander() Commander {
 	return commander
 }
 
+// clone my repo
 func(c Commander) CloneRepository(repoUrl string, ref string) error {
 	glog.Infof("Cloning repository: %s in directory: %s", repoUrl, c.dir)
 
@@ -31,6 +32,7 @@ func(c Commander) CloneRepository(repoUrl string, ref string) error {
 	return nil
 }
 
+// pull new changes
 func(c Commander) Pull() error {
 	glog.Infof("Pulling from master")
 	cmd := exec.Command("git", "pull")
@@ -42,6 +44,7 @@ func(c Commander) Pull() error {
 	return nil
 }
 
+// if test or run fails, do this, so the old version of app can continie to run
 func(c Commander) Revert(head string) error {
 	glog.Infof("Undoing commit %s", head)
 	cmd := exec.Command("git", "reset", "--hard", "HEAD^")
@@ -52,6 +55,7 @@ func(c Commander) Revert(head string) error {
 	return nil
 }
 
+//automated tests
 func(c Commander) TestRepository() error {
 	glog.Infof("Testing app with command %s", c.dir)
 	cmd := exec.Command("make", "fluff-test")
@@ -64,9 +68,33 @@ func(c Commander) TestRepository() error {
 	return nil
 }
 
-func(c Commander) Clean() {
+// run project 
+func (c Commander) Run() error {
+	glog.Infof("Starting app...")
+	cmd := exec.Command("make", "fluff-run")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	glog.Infof("Output: %v", string(output))
+	return nil
+}
+
+// remove project
+func(c Commander) Remove() {
 	err := os.RemoveAll(c.dir)
 	if err != nil {
 		glog.Errorf("Failed to clean because %v", err)
 	}
+}
+
+func (c Commander) Cleanup() error {
+	glog.Infof("Cleaning up...")
+	cmd := exec.Command("make", "fluff-cleanup")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	glog.Infof("Output: %v", string(output))
+	return nil
 }

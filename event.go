@@ -18,7 +18,7 @@ func init() {
 
 type EventHandler struct {
 	client    *GithubClient
-	repo      string
+	//repo      string
 	masterRef string
 }
 
@@ -55,7 +55,7 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	err = commander.TestRepository()
 	if err != nil {
-		glog.Warningf("Failed to test app, error: %v", err)
+		glog.Warningf("App test failed, error: %v", err)
 		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
 		err = commander.Revert(head)
 		if err != nil {
@@ -63,6 +63,28 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 			return nil
 		}
 		return nil
+	}
+
+	err = commander.Run()
+	if err != nil {
+		glog.Warningf("Failed to run app, error: %v", err)
+		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
+		err = commander.Revert(head)
+		if err != nil {
+			glog.Warningf("Failed to revert, error: %v", err)
+			return nil
+		}
+		err = commander.Run()
+			if err != nil {
+				glog.Warningf("Failed to run app, error: %v", err)
+				return nil
+		}
+		return nil
+	}
+
+	err = commander.Cleanup()
+	if err != nil {
+		glog.Warningf("Failed to cleanup, error: %v", err)
 	}
 
 	e.client.PostStatus(fName, head, head, "success", "fluff-ci/cd-test")

@@ -1,17 +1,19 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"io"
-	"fmt"
+	"os"
+
 	"github.com/golang/glog"
-	"flag"
 )
 
 var (
-	token = "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"
-	repo = "AleX77NP/Express-test-app.git"
+	token = os.Getenv("WEBHOOK_ACCESS_TOKEN")
+	//repo = "AleX77NP/node-test"
 )
 
 func main() {
@@ -22,7 +24,7 @@ func main() {
 	client := NewGithubClient(token)
 
 	eventHandler := EventHandler{
-		repo: repo,
+		//repo: repo,
 		client: client,
 	}
 

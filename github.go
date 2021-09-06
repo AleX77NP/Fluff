@@ -38,7 +38,7 @@ func(c *GithubClient) PostStatus(fName, head, job string, status, target string)
 	data["context"] = "ci-cd/fluff" + target
 	data["state"] = status
 	data["target_url"] = c.getBaseUrl() + job
-	data["description"] = "Fluff test"
+	data["description"] = "Fluff ci/cd test and run"
 	dataToSend, _ := json.Marshal(data)
 
 	// send request

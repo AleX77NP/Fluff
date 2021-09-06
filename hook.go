@@ -16,10 +16,6 @@ type Hook struct {
 	Payload   []byte
 }
 
-type HookEvent struct {
-
-}
-
 // parse hook and check fields
 
 func ParseHook(secret []byte, request *http.Request, w http.ResponseWriter, eh EventHandler) (*Hook, error) {
