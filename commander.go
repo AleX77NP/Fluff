@@ -42,8 +42,25 @@ func(c Commander) Pull() error {
 	return nil
 }
 
-func(c Commander) TestRepository(testCommand string) error {
-	glog.Info("Testing")
+func(c Commander) Revert(head string) error {
+	glog.Infof("Undoing commit %s", head)
+	cmd := exec.Command("git", "reset", "--hard", "HEAD^")
+	cmd.Dir = c.dir
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("Failed to revert commit %s, beacuse of: %v", head, err)
+	}
+	return nil
+}
+
+func(c Commander) TestRepository() error {
+	glog.Infof("Testing app with command %s", c.dir)
+	cmd := exec.Command("make", "fluff-test")
+	//cmd.Dir = c.dir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	glog.Infof("Test output: %v", string(output))
 	return nil
 }
 

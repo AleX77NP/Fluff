@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/golang/glog"
 	"github.com/google/go-github/github"
 )
@@ -16,12 +17,12 @@ func init() {
 }
 
 type EventHandler struct {
-	client *GithubClient
-	repo string
+	client    *GithubClient
+	repo      string
 	masterRef string
 }
 
-func(e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
+func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 	glog.Infof("Recieved push event")
 
 	if err := checkPush(event); err != nil {
@@ -34,6 +35,11 @@ func(e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	commander := NewCommander()
 
+	err := e.client.PostStatus(fName, head, head, "pending", "fluff-ci/cd-test")
+	if err != nil {
+		glog.Warning("Failed to create pending status, error: %v", err)
+	}
+
 	commander.CloneRepository(fName, event.GetRef())
 
 	if MasterRef != event.GetRef() {
@@ -41,8 +47,25 @@ func(e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 		return nil
 	}
 
-	commander.Pull()
+	err = commander.Pull()
+	if err != nil {
+		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
+		glog.Infof("Failed to pull from master, error: %v", err)
+	}
 
+	err = commander.TestRepository()
+	if err != nil {
+		glog.Warningf("Failed to test app, error: %v", err)
+		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
+		err = commander.Revert(head)
+		if err != nil {
+			glog.Warningf("Failed to revert, error: %v", err)
+			return nil
+		}
+		return nil
+	}
+
+	e.client.PostStatus(fName, head, head, "success", "fluff-ci/cd-test")
 
 	return nil
 }

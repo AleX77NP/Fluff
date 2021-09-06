@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+
 	// "os"
 	"strings"
 )
@@ -21,9 +22,9 @@ func SignBody(secret, body []byte) []byte {
 
 func Verify(secret []byte, signature string, body []byte) bool {
 	const prefix = "sha1="
-	const length = 45 
+	const length = 45
 
-	if(len(signature) != length || !strings.HasPrefix(signature, prefix)) {
+	if len(signature) != length || !strings.HasPrefix(signature, prefix) {
 		return false
 	}
 
