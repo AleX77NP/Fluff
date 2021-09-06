@@ -7,4 +7,4 @@ fluff-run:
 	cd ${PROJECT_PATH} && docker-compose pull && docker-compose build &&  docker-compose up -d --remove-orphans --force-recreate
 
 fluff-cleanup:
-	docker image prune -f
+	docker image prune -a -f
