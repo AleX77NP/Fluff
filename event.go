@@ -35,16 +35,16 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	commander := NewCommander()
 
-	err := e.client.PostStatus(fName, head, head, "pending", "fluff-ci/cd-test")
-	if err != nil {
-		glog.Warning("Failed to create pending status, error: %v", err)
+	if MasterRef != event.GetRef() {
+		glog.Infof("Not a master ref, but %s", event.GetRef())
+		return nil
 	}
 
 	commander.CloneRepository(fName, event.GetRef())
 
-	if MasterRef != event.GetRef() {
-		glog.Infof("Not a master ref, but %s", event.GetRef())
-		return nil
+	err := e.client.PostStatus(fName, head, head, "pending", "fluff-ci/cd-test")
+	if err != nil {
+		glog.Warning("Failed to create pending status, error: %v", err)
 	}
 
 	err = commander.Pull()
