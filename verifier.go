@@ -5,15 +5,13 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"os"
-
-	// "os"
 	"strings"
 )
 
 // Save your secret in env variable
 
-var secret1 = os.Getenv("WEBHOOK_SECRET")
-var secret = "secret123"
+var secret = os.Getenv("WEBHOOK_SECRET")
+
 
 func SignBody(secret, body []byte) []byte {
 	result := hmac.New(sha1.New, secret)
