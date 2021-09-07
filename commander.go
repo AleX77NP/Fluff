@@ -88,6 +88,7 @@ func(c Commander) Remove() {
 	}
 }
 
+// cleanup unused stuff
 func (c Commander) Cleanup() {
 	glog.Infof("Started cleaning up...")
 	cmd := exec.Command("make", "fluff-cleanup")
