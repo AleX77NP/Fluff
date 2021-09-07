@@ -8,3 +8,7 @@ fluff-run:
 
 fluff-cleanup:
 	docker image prune -a -f
+
+# test 
+fluff-commander-test:
+	ls -l

@@ -69,9 +69,9 @@ func(c Commander) TestRepository() error {
 }
 
 // run project 
-func (c Commander) Run() error {
+func (c Commander) Run(runCommand string) error {
 	glog.Infof("Starting app...")
-	cmd := exec.Command("make", "fluff-run")
+	cmd := exec.Command("make", runCommand)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
@@ -88,13 +88,12 @@ func(c Commander) Remove() {
 	}
 }
 
-func (c Commander) Cleanup() error {
-	glog.Infof("Cleaning up...")
+func (c Commander) Cleanup() {
+	glog.Infof("Started cleaning up...")
 	cmd := exec.Command("make", "fluff-cleanup")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
+		glog.Warningf("Error: %v", err)
 	}
 	glog.Infof("Output: %v", string(output))
-	return nil
 }

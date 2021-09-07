@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	token = os.Getenv("WEBHOOK_ACCESS_TOKEN")
+	token1 = os.Getenv("WEBHOOK_ACCESS_TOKEN")
+	token = "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"
 	//repo = "AleX77NP/node-test"
 )
 

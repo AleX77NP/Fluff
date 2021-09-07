@@ -35,6 +35,8 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	commander := NewCommander()
 
+	defer commander.Cleanup()
+
 	if MasterRef != event.GetRef() {
 		glog.Infof("Not a master ref, but %s", event.GetRef())
 		return nil
@@ -65,7 +67,7 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 		return nil
 	}
 
-	err = commander.Run()
+	err = commander.Run("fluff-run")
 	if err != nil {
 		glog.Warningf("Failed to run app, error: %v", err)
 		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
@@ -74,17 +76,12 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 			glog.Warningf("Failed to revert, error: %v", err)
 			return nil
 		}
-		err = commander.Run()
+		err = commander.Run("fluff-run")
 			if err != nil {
 				glog.Warningf("Failed to run app, error: %v", err)
 				return nil
 		}
 		return nil
-	}
-
-	err = commander.Cleanup()
-	if err != nil {
-		glog.Warningf("Failed to cleanup, error: %v", err)
 	}
 
 	e.client.PostStatus(fName, head, head, "success", "fluff-ci/cd-test")
