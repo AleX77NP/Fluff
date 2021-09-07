@@ -11,6 +11,7 @@ import (
 	"github.com/golang/glog"
 )
 
+// Save access token in env variable
 var (
 	token = os.Getenv("WEBHOOK_ACCESS_TOKEN")
 )
