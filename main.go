@@ -46,7 +46,7 @@ func HookHandler(eh EventHandler) http.HandlerFunc {
 		}
 
 		glog.Infof("web hook event %v", hook.Event)
-		
+
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, "{}")
 		return
