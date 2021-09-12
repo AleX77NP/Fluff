@@ -12,9 +12,9 @@ type Commander struct {
 	dir string
 }
 
-func NewCommander() Commander {
+func NewCommander(directory string) Commander {
 	commander := Commander{}
-	commander.dir = getDirectory()
+	commander.dir = directory
 	return commander
 }
 
@@ -56,9 +56,9 @@ func(c Commander) Revert(head string) error {
 }
 
 //automated tests
-func(c Commander) TestRepository() error {
+func(c Commander) TestRepository(testState string) error {
 	glog.Infof("Testing app with command %s", c.dir)
-	cmd := exec.Command("make", "fluff-test")
+	cmd := exec.Command("make", testState)
 	//cmd.Dir = c.dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -87,6 +87,7 @@ func(c Commander) Remove() {
 		glog.Errorf("Failed to clean because %v", err)
 	}
 }
+
 
 // cleanup unused stuff
 func (c Commander) Cleanup() {

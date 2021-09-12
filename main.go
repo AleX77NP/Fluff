@@ -21,6 +21,7 @@ func main() {
 	flag.Set("logtostderr", "true")
 	flag.Parse()
 
+	fmt.Println(token)
 	client := NewGithubClient(token)
 
 	eventHandler := EventHandler{

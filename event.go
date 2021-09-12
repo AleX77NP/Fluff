@@ -6,24 +6,31 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/google/go-github/github"
+	"strings"
 )
 
 var (
-	MasterRef string
+	MasterRefStaging string
+	masterRefProduction string
 )
 
 func init() {
-	flag.StringVar(&MasterRef, "master-ref", "refs/heads/master", "The ref with post-commit targets. Defaults to refs/heads/master")
+	flag.StringVar(&MasterRefStaging, "master-ref", "refs/heads/master", "The ref with post-commit targets. Defaults to refs/heads/master")
+	flag.StringVar(&masterRefProduction, "tag-ref", "refs/tags/", "Tag ref with production ready commit.")
 }
 
 type EventHandler struct {
-	client    *GithubClient
+	client *GithubClient
 	//repo      string
 	masterRef string
 }
 
 func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 	glog.Infof("Recieved push event")
+
+	var directory string
+	var state string
+	var testState string
 
 	if err := checkPush(event); err != nil {
 		return err
@@ -33,14 +40,25 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 
 	glog.Infof("Head and Repo name %v %v", head, fName)
 
-	commander := NewCommander()
+	if event.GetRef() != MasterRefStaging {
+		if (strings.Contains(event.GetRef(), masterRefProduction)) {
+			glog.Infof("Ready for production build...")
+			directory = getDirectoryProduction()
+			state = "fluff-run-prod"
+			testState = "fluff-test-prod"
+		} else {
+			glog.Infof("Not a master or tag ref, but %s", event.GetRef())
+			return nil
+		}
+	} else {
+		directory = getDirectoryStaging()
+		state = "fluff-run-stag"
+		testState = "fluff-test-stag"
+	}
+
+	commander := NewCommander(directory)
 
 	defer commander.Cleanup()
-
-	if MasterRef != event.GetRef() {
-		glog.Infof("Not a master ref, but %s", event.GetRef())
-		return nil
-	}
 
 	commander.CloneRepository(fName, event.GetRef())
 
@@ -55,7 +73,7 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 		glog.Infof("Failed to pull from master, error: %v", err)
 	}
 
-	err = commander.TestRepository()
+	err = commander.TestRepository(testState)
 	if err != nil {
 		glog.Warningf("App test failed, error: %v", err)
 		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
@@ -67,7 +85,7 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 		return nil
 	}
 
-	err = commander.Run("fluff-run")
+	err = commander.Run(state)
 	if err != nil {
 		glog.Warningf("Failed to run app, error: %v", err)
 		e.client.PostStatus(fName, head, head, "failure", "fluff-ci/cd-test")
@@ -76,10 +94,10 @@ func (e *EventHandler) HandlePushEvent(event *github.PushEvent) error {
 			glog.Warningf("Failed to revert, error: %v", err)
 			return nil
 		}
-		err = commander.Run("fluff-run")
-			if err != nil {
-				glog.Warningf("Failed to run app, error: %v", err)
-				return nil
+		err = commander.Run(state)
+		if err != nil {
+			glog.Warningf("Failed to run app, error: %v", err)
+			return nil
 		}
 		return nil
 	}

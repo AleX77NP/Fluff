@@ -7,7 +7,7 @@ import (
 )
 
 func TestCommanderRun(t *testing.T) {
-	commander := NewCommander()
+	commander := NewCommander(getDirectoryStaging())
 
 	commander.dir = "/"
 

@@ -6,6 +6,10 @@ var (
 	githubUrl = "https://github.com"
 )
 
-func getDirectory() string {
-	return fmt.Sprintf("/tmp/project")
+func getDirectoryStaging() string {
+	return fmt.Sprintf("/tmp/staging")
+}
+
+func getDirectoryProduction() string {
+	return fmt.Sprintf("/tmp/production")
 }
